@@ -1,6 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser');
-const cors = require('cors');
+// const cors = require('cors');
 const app = express();
 const seedSlots = require('./seed')
 // db env config
@@ -9,9 +9,6 @@ require('./config/db');
 // routes
 const parkingRoutes = require('./routes/parking')
 
-app.get('/', (req,res)=>{
-    res.send('ezrze')
-})
 seedSlots()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

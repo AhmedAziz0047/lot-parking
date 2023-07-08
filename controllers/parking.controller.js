@@ -1,13 +1,14 @@
 const Slot = require("./../models/Slot");
 const Ticket = require("./../models/Ticket");
 
-// secure ticker id
+// secure ticket id
 const randomString = generateRandomString(4); // Generate a random string of 4 characters
 
 // Function to generate a random string of given length
 function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
@@ -41,7 +42,7 @@ exports.parkVehicle = async (req, res) => {
     const ticket = new Ticket({
       vehicle: slot.type,
       slot: slot._id,
-      ticketId: "FLOOR-" + slot.floorNumber + "-SLOT-" + slot.slotNumber + "-" + randomString,
+      ticketId:"FLOOR-" + slot.floorNumber + "-SLOT-" + slot.slotNumber + "-" + randomString,
     });
     ticket
       .save()
@@ -52,9 +53,26 @@ exports.parkVehicle = async (req, res) => {
   }
 };
 
+exports.unparkVehicle = async (req, res) => {
+  try {
+    const ticket = await Ticket.findOne({
+      ticketId: req.params.ticketId,
+    }).exec();
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
 
+    await Slot.findByIdAndUpdate(ticket.slot, { isOccupied: false });
 
+    return res
+      .status(201)
+      .json({ message: "Thank you for choosing us. Stay safe!" });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
+// optional in case to add manual slot
 exports.createSlot = async (req, res, next) => {
   const slot = new Slot({
     ...req.body,
@@ -62,5 +80,5 @@ exports.createSlot = async (req, res, next) => {
   slot
     .save()
     .then(() => res.status(201).json({ message: "slot created  !" }))
-    .catch((error) => res.status(400).json({ message:"truck car bike" }));
+    .catch((error) => res.status(400).json({ message: "truck car bike" }));
 };
