@@ -70,44 +70,31 @@ exports.unparkVehicle = async (req, res) => {
 
 exports.freeSlotsNumber = async (req, res) => {
   try {
-    const freeSlotsCountPerFloor = await Slot.aggregate([
+    const { vehicleType } = req.params;
+
+    const freeSlotsPerFloor = await Slot.aggregate([
       {
         $match: {
+          type: vehicleType,
           isOccupied: false,
         },
       },
       {
         $group: {
-          _id: {
-            floorNumber: '$floorNumber',
-            type: '$type',
-          },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $group: {
-          _id: '$_id.floorNumber',
-          freeSlots: {
-            $push: {
-              type: '$_id.type',
-              count: '$count',
-            },
-          },
+          _id: '$floorNumber',
+          freeSlotsCount: { $sum: 1 },
         },
       },
       {
         $project: {
           _id: 0,
           floorNumber: '$_id',
-          freeSlotsCount: {
-            $sum: '$freeSlots.count',
-          },
+          freeSlotsCount: 1,
         },
       },
     ]);
 
-    res.json(freeSlotsCountPerFloor);
+    res.json(freeSlotsPerFloor);
   } catch (error) {
     res.status(500).json({ error: 'An error occurred' });
   }
