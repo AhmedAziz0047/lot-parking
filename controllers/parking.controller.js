@@ -8,31 +8,33 @@ const randomString = generateRandomString(4); // Generate a random string of 4 c
 function generateRandomString(length) {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
+  const result = [];
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters.charAt(randomIndex);
+    result.push(characters.charAt(randomIndex));
   }
-  return result;
+
+  return result.join("");
 }
 
 exports.getFirstFreeSlot = async (req, res) => {
-  const vehicleType = req.params.vehicleType;
-  Slot.findOne({ isOccupied: false, type: vehicleType })
-    .sort({ slotNumber: 1, slotNumber: 1 })
-    .then((slot) => res.status(200).send(slot))
-    .catch((err) => res.status(400).json({ error: err.message }));
+  try {
+    const vehicleType = req.params.vehicleType;
+    const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ slotNumber: 1 });
+    if (!slot) {
+      return res.status(400).json({ error: "No slots available" });
+    }
+    res.status(200).send(slot);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
 
 exports.parkVehicle = async (req, res) => {
-  const vehicleType = req.params.vehicleType;
-
   try {
-    const slot = await Slot.findOne({
-      isOccupied: false,
-      type: vehicleType,
-    }).sort({ slotNumber: 1, floorNumber: 1 });
+    const vehicleType = req.params.vehicleType;
+    const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ slotNumber: 1, floorNumber: 1 });
     if (!slot) {
       return res.status(400).json({ error: "No slots available" });
     }
@@ -42,12 +44,10 @@ exports.parkVehicle = async (req, res) => {
     const ticket = new Ticket({
       vehicle: slot.type,
       slot: slot._id,
-      ticketId:"FLOOR-" + slot.floorNumber + "-SLOT-" + slot.slotNumber + "-" + randomString,
+      ticketId: `FLOOR-${slot.floorNumber}-SLOT-${slot.slotNumber}-${randomString}`,
     });
-    ticket
-      .save()
-      .then(() => res.status(201).json({ message: "ticket created!" }))
-      .catch((error) => res.status(400).json({ error }));
+    await ticket.save();
+    res.status(201).json({ message: "ticket created!" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -55,30 +55,71 @@ exports.parkVehicle = async (req, res) => {
 
 exports.unparkVehicle = async (req, res) => {
   try {
-    const ticket = await Ticket.findOne({
-      ticketId: req.params.ticketId,
-    }).exec();
+    const ticket = await Ticket.findOne({ ticketId: req.params.ticketId }).exec();
     if (!ticket) {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
     await Slot.findByIdAndUpdate(ticket.slot, { isOccupied: false });
 
-    return res
-      .status(201)
-      .json({ message: "Thank you for choosing us. Stay safe!" });
+    res.status(201).json({ message: "Thank you for choosing us. Stay safe!" });
   } catch (error) {
-    return res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.freeSlotsNumber = async (req, res) => {
+  try {
+    const freeSlotsCountPerFloor = await Slot.aggregate([
+      {
+        $match: {
+          isOccupied: false,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            floorNumber: '$floorNumber',
+            type: '$type',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: '$_id.floorNumber',
+          freeSlots: {
+            $push: {
+              type: '$_id.type',
+              count: '$count',
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          floorNumber: '$_id',
+          freeSlotsCount: {
+            $sum: '$freeSlots.count',
+          },
+        },
+      },
+    ]);
+
+    res.json(freeSlotsCountPerFloor);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred' });
   }
 };
 
 // optional in case to add manual slot
-exports.createSlot = async (req, res, next) => {
-  const slot = new Slot({
-    ...req.body,
-  });
-  slot
-    .save()
-    .then(() => res.status(201).json({ message: "slot created  !" }))
-    .catch((error) => res.status(400).json({ message: "truck car bike" }));
+exports.createSlot = async (req, res) => {
+  const slot = new Slot({ ...req.body });
+  try {
+    await slot.save();
+    res.status(201).json({ message: "slot created!" });
+  } catch (error) {
+    res.status(400).json({ message: "truck car bike" });
+  }
 };
