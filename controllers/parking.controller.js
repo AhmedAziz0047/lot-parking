@@ -34,7 +34,8 @@ exports.getFirstFreeSlot = async (req, res) => {
 exports.parkVehicle = async (req, res) => {
   try {
     const vehicleType = req.params.vehicleType;
-    const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ slotNumber: 1, floorNumber: 1 });
+    const hoursNbr = req.params.hoursNbr;
+    const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ floorNumber: 1, slotNumber: 1 });
     if (!slot) {
       return res.status(400).json({ error: "No slots available" });
     }
@@ -44,7 +45,8 @@ exports.parkVehicle = async (req, res) => {
     const ticket = new Ticket({
       vehicle: slot.type,
       slot: slot._id,
-      ticketId: `FLOOR-${slot.floorNumber}-SLOT-${slot.slotNumber}-${randomString}`,
+      ticketId: `F-${slot.floorNumber}-S-${slot.slotNumber}-${randomString}`,
+      parkDuration:hoursNbr
     });
     await ticket.save();
     res.status(201).json({ message: "ticket created!" });
@@ -61,6 +63,7 @@ exports.unparkVehicle = async (req, res) => {
     }
 
     await Slot.findByIdAndUpdate(ticket.slot, { isOccupied: false });
+    await Ticket.deleteOne({_id:ticket._id});
 
     res.status(201).json({ message: "Thank you for choosing us. Stay safe!" });
   } catch (error) {
@@ -76,13 +79,16 @@ exports.freeSlotsNumber = async (req, res) => {
       {
         $match: {
           type: vehicleType,
-          isOccupied: false,
         },
       },
       {
         $group: {
           _id: '$floorNumber',
-          freeSlotsCount: { $sum: 1 },
+          freeSlotsCount: {
+            $sum: {
+              $cond: [{ $eq: ['$isOccupied', false] }, 1, 0],
+            },
+          },
         },
       },
       {
@@ -93,6 +99,7 @@ exports.freeSlotsNumber = async (req, res) => {
         },
       },
     ]);
+
 
     res.json(freeSlotsPerFloor);
   } catch (error) {
