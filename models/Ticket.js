@@ -5,3 +5,5 @@ const ticketSchema = new mongoose.Schema({
     slot: { type: mongoose.Schema.Types.ObjectId, ref: 'Slot', required: true }, 
     ticketId: { type: String, required: true, unique: true }
   });s
+
+  module.exports = mongoose.model('Ticket', FlightsSchema);
