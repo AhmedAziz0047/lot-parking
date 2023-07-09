@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit  } from '@angular/core';
 import { ParkingServiceService } from '../services/parking-service.service';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-hours',
@@ -24,7 +25,7 @@ export class HoursComponent implements OnInit{
       type=""
       hours:Number=0
       entrypoint:any
-      constructor (private router:Router,private route: ActivatedRoute, private service:ParkingServiceService){}
+      constructor (private toastr: ToastrService, private router:Router,private route: ActivatedRoute, private service:ParkingServiceService){}
       ngOnInit() {
               this.route.paramMap.subscribe(params => {
                 this.type = params.get('type') ?? '';
@@ -42,13 +43,20 @@ export class HoursComponent implements OnInit{
       getFreeslots(){}
 
       park() {
-        this.service.park(this.type, this.entrypoint, this.hours).subscribe((data: any) => {
+        if (this.hours.valueOf() > 1 && this.hours.valueOf() < 24) {
+          this.service.park(this.type, this.entrypoint, this.hours).subscribe((data: any) => {
           this.ticketID=data.ticket._id
           console.log(this.ticketID)
           this.ticket = data;
           console.log(this.ticket.ticket._id);
+          this.toastr.success("Your ticket is ready","Welcome")
           this.router.navigate(['/ticket/', this.ticketID]);
         });
+        }else{
+          this.toastr.warning("Max 24 hours, check slots available","Warning")
+        }
+        
+        
       }
 
 }

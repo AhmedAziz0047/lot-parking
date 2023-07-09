@@ -11,6 +11,7 @@ import { TicketComponent } from './ticket/ticket.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ToastrModule.forRoot({
+      positionClass :'toast-bottom-right'
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]

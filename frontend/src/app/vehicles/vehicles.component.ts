@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ParkingServiceService } from '../services/parking-service.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-vehicles',
@@ -7,7 +8,7 @@ import { ParkingServiceService } from '../services/parking-service.service';
   styleUrls: ['./vehicles.component.css']
 })
 export class VehiclesComponent {
-  constructor (private service:ParkingServiceService){}
+  constructor (private toastr: ToastrService, private service:ParkingServiceService){}
   ticketid:any
   vehicles=[
           {
@@ -23,8 +24,10 @@ export class VehiclesComponent {
   ]
 
   unpark(){
-    this.service.unpark(this.ticketid).subscribe(()=>{
-          
-    })
+    this.service.unpark(this.ticketid).subscribe(res=>{
+      this.toastr.success('Stay safe', 'Thank you')
+      this.ticketid=""
+    },err=>{
+      this.toastr.warning("Check your ticket code","Warning")      });
   }
 }
