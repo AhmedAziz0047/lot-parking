@@ -7,16 +7,4 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'lot-parking';
-  vehicles=[
-          {
-              type:"car",
-              image:"../assets/car.jpg"
-          },{
-            type:"truck",
-            image:"../assets/truck.jpg"
-        },{
-          type:"bike",
-          image:"../assets/bike.jpg"
-      }
-        ]
 }

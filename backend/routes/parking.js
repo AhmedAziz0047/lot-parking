@@ -5,7 +5,7 @@ const parking = require('../controllers/parking.controller')
 
 // router.get('/getFirstFreeSlot/:vehicleType', parking.getFirstFreeSlot) testing route
 router.post('/addslot', parking.createSlot) // optional in case to add manual slot 
-router.post('/parkvehicle/:entryPoint/:vehicleType/:hoursNbr', parking.parkVehicle)
+router.get('/parkvehicle/:entryPoint/:vehicleType/:hoursNbr', parking.parkVehicle)
 router.post('/unparkvehicle/:ticketId', parking.unparkVehicle)
 router.get('/freeslots/:vehicleType', parking.freeSlotsNumber)
 

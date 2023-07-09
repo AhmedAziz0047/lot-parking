@@ -1,0 +1,11 @@
+<section class="vehicles">
+    <div class="container">
+      <h2 class="section-title">Select you vehicle</h2>
+      <div class="vehicles-list">
+        <div class="vehicle" *ngFor="let vehicle of vehicles">
+          <img src={{vehicle.image}} alt="Vehicle 1" role="button" [routerLink]="['/hours/', vehicle.type, 1]">
+        </div>
+      </div>
+    </div>
+  </section>
+  
