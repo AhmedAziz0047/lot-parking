@@ -89,31 +89,44 @@ exports.freeSlotsNumber = async (req, res) => {
       {
         $match: {
           type: vehicleType,
+          isOccupied: false, // Only match unoccupied slots
         },
       },
       {
         $group: {
-          _id: '$floorNumber',
+          _id: "$floorNumber",
           freeSlotsCount: {
-            $sum: {
-              $cond: [{ $eq: ['$isOccupied', false] }, 1, 0],
-            },
+            $sum: 1,
           },
         },
       },
       {
         $project: {
           _id: 0,
-          floorNumber: '$_id',
+          floorNumber: "$_id",
           freeSlotsCount: 1,
         },
       },
     ]);
 
-
     res.json(freeSlotsPerFloor);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
+exports.getOneTicket = async (req, res) => {
+  try {
+    const id = req.params._id;
+    const ticket = await Ticket.findOne({ _id: id });
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    res.json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

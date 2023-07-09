@@ -1,0 +1,22 @@
+.ticket {
+    width: 500px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    margin: 0 auto;
+  }
+  
+  .ticket-header {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .ticket-label {
+    font-weight: bold;
+  }
+  
+  .ticket-info {
+    margin-bottom: 20px;
+  }

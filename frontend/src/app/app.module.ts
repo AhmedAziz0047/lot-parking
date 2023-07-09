@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { TicketComponent } from './ticket/ticket.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
 import { RouterModule } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { RouterModule } from '@angular/router';
     HttpClientModule,
     RouterModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

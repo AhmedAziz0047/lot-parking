@@ -18,4 +18,14 @@ export class ParkingServiceService {
   park(type:string, entryPoint:Number, hours:Number):Observable<any>{
     return this.http.get<any>(this.apiUrl + 'parkvehicle/' + entryPoint + '/' + type  + '/' + hours )
   }
+
+  getOneTicket(id:string):Observable<any>{
+    return this.http.get<any>(this.apiUrl + 'findoneticket/' + id )
+  }
+
+  unpark(id:string):Observable<any>{
+    return this.http.post<any>(this.apiUrl + 'unparkvehicle/' + id, id  )
+  }
+
+
 }

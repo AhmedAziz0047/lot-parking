@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ParkingServiceService } from '../services/parking-service.service';
 
 @Component({
   selector: 'app-vehicles',
@@ -6,6 +7,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./vehicles.component.css']
 })
 export class VehiclesComponent {
+  constructor (private service:ParkingServiceService){}
+  ticketid:any
   vehicles=[
           {
               type:"car",
@@ -18,4 +21,10 @@ export class VehiclesComponent {
           image:"../assets/bike.jpg"
           }
   ]
+
+  unpark(){
+    this.service.unpark(this.ticketid).subscribe(()=>{
+          
+    })
+  }
 }

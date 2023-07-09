@@ -1,1 +1,20 @@
-<p>ticket works!</p>
+<body>
+    <div class="ticket">
+      <div class="ticket-header">Parking Ticket</div>
+      <div class="ticket-info">
+        <br>
+        <span class="ticket-label">you can find your placement on the code F:Floor, S:Slot</span><br>
+        <br>
+        <span class="ticket-label">Ticket Code: </span>
+        <span class="ticket-code">{{ticket.ticketId}}</span>
+      </div>
+      <div class="ticket-info">
+        <span class="ticket-label">Expires in: </span>
+        <span class="ticket-end-time">{{time}}</span>
+      </div>
+      <div class="ticket-info">
+        <span class="ticket-label">Vehicle: </span>
+        <span class="ticket-vehicle">{{ticket.vehicle}}</span>
+      </div>
+    </div>
+  </body>
