@@ -35,21 +35,31 @@ exports.parkVehicle = async (req, res) => {
   try {
     const vehicleType = req.params.vehicleType;
     const hoursNbr = req.params.hoursNbr;
-    const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ floorNumber: 1, slotNumber: 1 });
+    const entryPoint = req.params.entryPoint
+
+    const slot = await Slot.findOneAndUpdate(
+      { type: vehicleType, isOccupied: false },
+      { $set: { isOccupied: true } },
+      { sort: { floorNumber: 1, slotNumber: 1 }, new: true } //new is to prevent^ù simultaneous requests from giving the same slot
+    );
+
     if (!slot) {
       return res.status(400).json({ error: "No slots available" });
     }
-    slot.isOccupied = true; // Set isOccupied to true
-    await slot.save(); // Save the updated slot
 
     const ticket = new Ticket({
       vehicle: slot.type,
       slot: slot._id,
-      ticketId: `F-${slot.floorNumber}-S-${slot.slotNumber}-${randomString}`,
-      parkDuration:hoursNbr
+      ticketId: `F-${slot.floorNumber}-S-${slot.slotNumber}-${randomString}`, //random string to perform security tickey key
+      parkDuration: hoursNbr,
+      entryPoint:entryPoint
     });
+
+    const hoursToAdd = ticket.parkDuration;
+    ticket.endTime = new Date(ticket.time.getTime() + hoursToAdd * 3600000);
+
     await ticket.save();
-    res.status(201).json({ message: "ticket created!" });
+    res.status(201).json({ message: "Ticket created!", ticket });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
