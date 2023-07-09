@@ -4,7 +4,6 @@ const Ticket = require("./../models/Ticket");
 // secure ticket id
 const randomString = generateRandomString(4); // Generate a random string of 4 characters
 
-// Function to generate a random string of given length
 function generateRandomString(length) {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -18,18 +17,19 @@ function generateRandomString(length) {
   return result.join("");
 }
 
-exports.getFirstFreeSlot = async (req, res) => {
-  try {
-    const vehicleType = req.params.vehicleType;
-    const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ slotNumber: 1 });
-    if (!slot) {
-      return res.status(400).json({ error: "No slots available" });
-    }
-    res.status(200).send(slot);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+// testing controller
+// exports.getFirstFreeSlot = async (req, res) => {
+//   try {
+//     const vehicleType = req.params.vehicleType;
+//     const slot = await Slot.findOne({ isOccupied: false, type: vehicleType }).sort({ slotNumber: 1 });
+//     if (!slot) {
+//       return res.status(400).json({ error: "No slots available" });
+//     }
+//     res.status(200).send(slot);
+//   } catch (err) {
+//     res.status(400).json({ error: err.message });
+//   }
+// };
 
 exports.parkVehicle = async (req, res) => {
   try {
